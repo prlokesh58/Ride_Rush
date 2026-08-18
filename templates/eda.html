@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Exploratory Data Analysis</h1>
+
+{% if error %}
+  <div class="error">
+    <strong>Couldn't run EDA.</strong><br>
+    {{ error }}<br><br>
+    Make sure <code>DATA_PATH</code> in <code>load_data.py</code> points to a valid NYC TLC trip CSV.
+  </div>
+
+{% elif results %}
+
+  <table class="stat-table small-table">
+    <tr><td>Rows</td><td>{{ results.n_rows }}</td></tr>
+    <tr><td>Columns</td><td>{{ results.n_cols }}</td></tr>
+    <tr><td>Duplicate rows</td><td>{{ results.duplicate_count }}</td></tr>
+  </table>
+
+  <h2>Missing Values</h2>
+  {% if results.missing %}
+    <table class="wide-table">
+      <thead>
+        <tr><th>Column</th><th>Missing Count</th></tr>
+      </thead>
+      <tbody>
+        {% for col, cnt in results.missing.items() %}
+        <tr><td>{{ col }}</td><td>{{ cnt }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No missing values found.</p>
+  {% endif %}
+
+  <h2>Rush Hour Trip Counts</h2>
+  <table class="small-table">
+    {% for k, v in results.rush_hour_counts.items() %}
+    <tr>
+      <td>{{ 'Rush hour' if k == '1' else 'Non-rush hour' }}</td>
+      <td>{{ v }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h2>Fare Amount Statistics</h2>
+  <table class="small-table">
+    {% for k, v in results.fare_statistics.items() %}
+    <tr>
+      <td>{{ k }}</td>
+      <td>{{ "%.2f"|format(v) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <h2>Charts</h2>
+  <div class="charts-section">
+    {% for chart in results.charts %}
+      <img src="{{ url_for('static', filename='charts/' + chart) }}" alt="{{ chart }}">
+      <div class="chart-caption">{{ chart.replace('_', ' ').replace('.png', '') }}</div>
+    {% endfor %}
+  </div>
+
+{% endif %}
+
+{% endblock %}

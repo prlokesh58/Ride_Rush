@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Data Loading</h1>
+
+{% if active == 'none' %}
+  <p>Select <strong>Data Loading</strong> from the sidebar to load the trip dataset, or go straight to <strong>EDA</strong>.</p>
+
+{% elif error %}
+  <div class="error">
+    <strong>Couldn't load the dataset.</strong><br>
+    {{ error }}<br><br>
+    Set <code>DATA_PATH</code> in <code>load_data.py</code> to your NYC TLC trip CSV.
+  </div>
+
+{% elif summary %}
+
+  <table class="stat-table small-table">
+    <tr><td>Rows</td><td>{{ summary.n_rows }}</td></tr>
+    <tr><td>Columns</td><td>{{ summary.n_cols }}</td></tr>
+    <tr><td>Missing values</td><td>{{ summary.missing_counts.values() | sum }}</td></tr>
+  </table>
+
+  <h2>Columns &amp; Dtypes</h2>
+  <div style="overflow:auto; max-height:360px; max-width:900px; border:1px solid #D7DEE5;">
+    <table class="wide-table">
+      <thead>
+        <tr><th>Column</th><th>Dtype</th><th>Missing</th></tr>
+      </thead>
+      <tbody>
+        {% for col in summary.columns %}
+        <tr>
+          <td>{{ col }}</td>
+          <td>{{ summary.dtypes[col] }}</td>
+          <td>{{ summary.missing_counts[col] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Preview (first 10 rows)</h2>
+  <div style="overflow:auto; max-width:1050px; border:1px solid #D7DEE5;">
+    <table class="wide-table">
+      <thead>
+        <tr>{% for col in summary.columns %}<th>{{ col }}</th>{% endfor %}</tr>
+      </thead>
+      <tbody>
+        {% for row in summary.preview %}
+        <tr>{% for col in summary.columns %}<td>{{ row[col] }}</td>{% endfor %}</tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% else %}
+  <p>Loading...</p>
+{% endif %}
+
+{% endblock %}
