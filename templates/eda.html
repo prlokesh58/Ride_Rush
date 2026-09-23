@@ -1,67 +1,83 @@
 {% extends "base.html" %}
-{% block content %}
+{% block title %}EDA{% endblock %}
 
+{% block content %}
 <h1>Exploratory Data Analysis</h1>
 
 {% if error %}
-  <div class="error">
-    <strong>Couldn't run EDA.</strong><br>
-    {{ error }}<br><br>
-    Make sure <code>DATA_PATH</code> in <code>load_data.py</code> points to a valid NYC TLC trip CSV.
-  </div>
-
-{% elif results %}
-
-  <table class="stat-table small-table">
-    <tr><td>Rows</td><td>{{ results.n_rows }}</td></tr>
-    <tr><td>Columns</td><td>{{ results.n_cols }}</td></tr>
-    <tr><td>Duplicate rows</td><td>{{ results.duplicate_count }}</td></tr>
-  </table>
-
-  <h2>Missing Values</h2>
-  {% if results.missing %}
-    <table class="wide-table">
-      <thead>
-        <tr><th>Column</th><th>Missing Count</th></tr>
-      </thead>
-      <tbody>
-        {% for col, cnt in results.missing.items() %}
-        <tr><td>{{ col }}</td><td>{{ cnt }}</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>No missing values found.</p>
-  {% endif %}
-
-  <h2>Rush Hour Trip Counts</h2>
-  <table class="small-table">
-    {% for k, v in results.rush_hour_counts.items() %}
-    <tr>
-      <td>{{ 'Rush hour' if k == '1' else 'Non-rush hour' }}</td>
-      <td>{{ v }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-
-  <h2>Fare Amount Statistics</h2>
-  <table class="small-table">
-    {% for k, v in results.fare_statistics.items() %}
-    <tr>
-      <td>{{ k }}</td>
-      <td>{{ "%.2f"|format(v) }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-
-  <h2>Charts</h2>
-  <div class="charts-section">
-    {% for chart in results.charts %}
-      <img src="{{ url_for('static', filename='charts/' + chart) }}" alt="{{ chart }}">
-      <div class="chart-caption">{{ chart.replace('_', ' ').replace('.png', '') }}</div>
-    {% endfor %}
-  </div>
-
+<div class="error">{{ error }}</div>
 {% endif %}
 
+{% if results %}
+
+<div class="cards">
+  <div class="card"><div class="value">{{ results.n_rows }}</div><div class="label">Rows</div></div>
+  <div class="card"><div class="value">{{ results.n_cols }}</div><div class="label">Columns</div></div>
+  <div class="card"><div class="value">{{ results.duplicate_count }}</div><div class="label">Duplicate rows</div></div>
+</div>
+
+{% if results.missing %}
+<h2>Missing Values</h2>
+<table>
+  <tr><th>Column</th><th>Missing Count</th></tr>
+  {% for col, count in results.missing.items() %}
+  <tr><td>{{ col }}</td><td>{{ count }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="note">No missing values found.</p>
+{% endif %}
+
+{% if results.fare_statistics %}
+<h2>Fare Amount Statistics</h2>
+<table>
+  <tr><th>Statistic</th><th>Value</th></tr>
+  {% for key, value in results.fare_statistics.items() %}
+  <tr><td>{{ key }}</td><td>{{ value | round(2) }}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<h2>Numeric Columns</h2>
+<p class="note">{{ results.numeric_columns | join(', ') }}</p>
+
+<h2>Categorical Columns</h2>
+<p class="note">{{ results.categorical_columns | join(', ') }}</p>
+
+{% if results.rush_hour_comparison %}
+<h2>Average Fare: Rush Hour vs Non-Rush Hour</h2>
+<table>
+  <tr><th>Rush Hour (0 = No, 1 = Yes)</th><th>Average Fare ($)</th><th>Trip Count</th></tr>
+  {% for key, value in results.rush_hour_comparison.items() %}
+  <tr>
+    <td>{{ key }}</td>
+    <td>{{ value | round(2) }}</td>
+    <td>{{ results.rush_hour_counts.get(key, '') }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if results.hourly_avg_fare %}
+<h2>Average Fare by Pickup Hour</h2>
+<table>
+  <tr><th>Hour</th><th>Average Fare ($)</th></tr>
+  {% for hour, fare in results.hourly_avg_fare.items() | sort %}
+  <tr><td>{{ hour }}</td><td>{{ fare | round(2) }}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if results.charts %}
+<h2>Charts</h2>
+<div class="plots">
+  {% for fname in results.charts %}
+  <img src="{{ url_for('static', filename='charts/' + fname) }}" alt="{{ fname }}">
+  {% endfor %}
+</div>
+{% endif %}
+
+{% else %}
+<p class="note">No EDA results to show yet.</p>
+{% endif %}
 {% endblock %}

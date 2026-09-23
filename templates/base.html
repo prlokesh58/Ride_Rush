@@ -1,150 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Ride Rush - Fare Prediction Project</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}RideRush Project{% endblock %}</title>
 <style>
   :root{
-    --navy:#1E3A5F;
-    --navy-active:#3D6FA8;
-    --sidebar-muted:#8098B3;
-    --bg:#F4F6F8;
-    --white:#FFFFFF;
-    --ink:#1B2733;
-    --border:#D7DEE5;
-    --header-bg:#E9EFF6;
+    --header:#173c5e;
+    --sidebar:#24557f;
+    --sidebar-active:#2f74b0;
+    --page:#f4f6f8;
+    --line:#d7dee5;
+    --text:#1f2a36;
+    --muted:#5b6b7b;
   }
+
   *{ box-sizing:border-box; }
+
   body{
     margin:0;
-    font-family:'Segoe UI', Arial, sans-serif;
-    background:var(--bg);
-    color:var(--ink);
+    font-family:"Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color:var(--text);
+    background:var(--page);
   }
-  .topbar{
-    background:var(--navy);
-    color:white;
-    padding:18px 28px;
+
+  header.topbar{
+    background:var(--header);
+    color:#fff;
+    padding:16px 24px;
     font-size:20px;
     font-weight:700;
-    border-bottom:3px solid #16283F;
   }
-  .layout{
-    display:flex;
-    min-height:calc(100vh - 62px);
+
+  .shell{ display:flex; min-height:calc(100vh - 56px); }
+
+  nav.sidebar{
+    width:210px;
+    flex:0 0 210px;
+    background:var(--sidebar);
+    padding-bottom:30px;
   }
-  .sidebar{
-    width:190px;
-    background:var(--navy);
-    padding:14px 0;
-    flex-shrink:0;
+
+  nav.sidebar .group{
+    padding:14px 18px 6px;
+    font-size:11px;
+    letter-spacing:.08em;
+    color:#a9c6e0;
+    border-top:1px solid rgba(255,255,255,.12);
+    margin-top:6px;
   }
-  .sidebar a, .sidebar .soon{
+
+  nav.sidebar .group:first-child{ border-top:none; margin-top:0; }
+
+  nav.sidebar a{
     display:block;
-    padding:14px 22px;
-    color:#E4EAF1;
+    padding:12px 18px;
+    color:#e8f0f7;
     text-decoration:none;
-    font-size:15px;
+    font-size:14px;
+    line-height:1.3;
   }
-  .sidebar a.active{
-    background:var(--navy-active);
-    color:white;
+
+  nav.sidebar a:hover{ background:rgba(255,255,255,.08); }
+
+  nav.sidebar a.active{
+    background:var(--sidebar-active);
     font-weight:700;
+    color:#fff;
   }
-  .sidebar a:hover:not(.active){
-    background:#274A73;
-  }
-  .sidebar .soon{
-    color:var(--sidebar-muted);
-    font-size:13px;
-    line-height:1.4;
-    padding-top:14px;
-    padding-bottom:14px;
-  }
-  .content{
-    flex:1;
-    padding:36px 44px;
-  }
-  .content h1{
-    font-size:26px;
-    margin:0 0 22px;
-    color:var(--ink);
-  }
-  .content h2{
-    font-size:18px;
-    margin:32px 0 12px;
-    color:var(--ink);
-  }
+
+  main{ flex:1; padding:26px 32px; overflow-x:auto; }
+
+  h1{ font-size:26px; margin:0 0 18px; }
+  h2{ font-size:18px; margin:26px 0 10px; }
+
   table{
     border-collapse:collapse;
-    background:var(--white);
-    border:1px solid var(--border);
-  }
-  th, td{
-    border:1px solid var(--border);
-    padding:10px 16px;
-    text-align:left;
+    background:#fff;
+    margin-bottom:14px;
     font-size:14px;
   }
-  th{
-    background:var(--header-bg);
-    font-weight:700;
-  }
-  .stat-table td:first-child{
-    font-weight:600;
-    background:var(--header-bg);
-    width:160px;
-  }
-  .wide-table{ width:100%; max-width:900px; }
-  .small-table{ width:auto; }
 
-  .error{
-    background:#FDECEC;
-    border:1px solid #F3B4B4;
-    color:#8A1F1F;
-    padding:16px 18px;
-    border-radius:6px;
-    max-width:700px;
-  }
-  code{
-    background:var(--navy);
-    color:#F3C13A;
-    padding:2px 6px;
-    border-radius:4px;
-    font-size:12px;
+  th, td{
+    border:1px solid var(--line);
+    padding:7px 14px;
+    text-align:left;
   }
 
-  .charts-section img{
-    display:block;
-    width:100%;
-    max-width:900px;
-    border:1px solid var(--border);
-    background:white;
-    margin-bottom:20px;
+  th{ background:#e9eef3; }
+
+  .cards{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:10px; }
+
+  .card{
+    background:#fff;
+    border:1px solid var(--line);
+    padding:14px 20px;
+    min-width:150px;
   }
-  .chart-caption{
-    font-size:12px;
-    color:#6B7A8A;
-    margin:-14px 0 20px;
+
+  .card .value{ font-size:24px; font-weight:700; }
+  .card .label{ font-size:12px; color:var(--muted); }
+
+  .plots{ display:flex; gap:20px; flex-wrap:wrap; }
+
+  .plots img{
+    background:#fff;
+    border:1px solid var(--line);
+    padding:8px;
+    max-width:100%;
   }
+
+  pre{
+    background:#fff;
+    border:1px solid var(--line);
+    padding:14px;
+    font-size:13px;
+    overflow-x:auto;
+  }
+
+  form.controls{
+    background:#fff;
+    border:1px solid var(--line);
+    padding:14px 18px;
+    margin-bottom:18px;
+    display:flex;
+    gap:16px;
+    align-items:flex-end;
+    flex-wrap:wrap;
+  }
+
+  form.controls label{ display:block; font-size:12px; color:var(--muted); margin-bottom:4px; }
+
+  select, input[type=text], input[type=number]{
+    padding:7px 9px;
+    border:1px solid var(--line);
+    font-size:14px;
+    min-width:150px;
+  }
+
+  button{
+    background:var(--sidebar-active);
+    color:#fff;
+    border:none;
+    padding:9px 20px;
+    font-size:14px;
+    cursor:pointer;
+  }
+
+  button:hover{ background:var(--header); }
+
+  .note{ color:var(--muted); font-size:13px; margin:6px 0 16px; }
+  .error{ background:#fdecea; border:1px solid #f5b5ae; padding:12px; margin-bottom:16px; }
+  .result-box{ background:#eaf4ea; border:1px solid #bcdcbc; padding:14px 18px; margin:16px 0; }
 </style>
 </head>
 <body>
 
-<div class="topbar">Ride Rush &mdash; Fare Prediction Project</div>
+<header class="topbar">RideRush &mdash; NYC Taxi Fare Analysis</header>
 
-<div class="layout">
-  <div class="sidebar">
-    <a href="/data-loading" class="{{ 'active' if active == 'data-loading' else '' }}">Data Loading</a>
-    <a href="/eda" class="{{ 'active' if active == 'eda' else '' }}">EDA</a>
-    <div class="soon">Preprocessing<br>(coming soon)</div>
-    <div class="soon">Model Training<br>(coming soon)</div>
-    <div class="soon">Prediction<br>(coming soon)</div>
-  </div>
+<div class="shell">
 
-  <div class="content">
+  <nav class="sidebar">
+
+    <div class="group">Pipeline</div>
+    <a href="/"               class="{{ 'active' if active=='none' }}">Home</a>
+    <a href="/data-loading"   class="{{ 'active' if active=='data-loading' }}">Data Loading</a>
+    <a href="/eda"            class="{{ 'active' if active=='eda' }}">EDA</a>
+    <a href="/preprocessing"  class="{{ 'active' if active=='preprocessing' }}">Preprocessing</a>
+    <a href="/encoding"       class="{{ 'active' if active=='encoding' }}">Encoding</a>
+    <a href="/model-training" class="{{ 'active' if active=='model_training' }}">Model Training</a>
+
+    <div class="group">Regression</div>
+    <a href="/linear-regression-scalar"  class="{{ 'active' if active=='linear_scalar' }}">Linear Regression (Scalar)</a>
+    <a href="/linear-regression-sklearn" class="{{ 'active' if active=='linear_sklearn' }}">Linear Regression (Sklearn)</a>
+
+    <div class="group">Boosting</div>
+    <a href="/adaboost"          class="{{ 'active' if active=='adaboost' }}">AdaBoost</a>
+    <a href="/gradient-boosting" class="{{ 'active' if active=='gradient_boosting' }}">Gradient Boosting</a>
+
+    <div class="group">Clustering</div>
+    <a href="/kmeans" class="{{ 'active' if active=='kmeans' }}">K-Means</a>
+
+    <div class="group">Result</div>
+    <a href="/prediction" class="{{ 'active' if active=='prediction' }}">Prediction</a>
+
+  </nav>
+
+  <main>
     {% block content %}{% endblock %}
-  </div>
+  </main>
+
 </div>
 
 </body>
