@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}K-Means{% endblock %}
+
+{% block content %}
+<h1>K-Means Clustering</h1>
+<p class="note">
+  Groups trips by trip_distance, fare_amount, tip_amount, passenger_count and
+  trip_duration_min. Choose how K is decided: Manual uses the K you type;
+  Elbow and Silhouette test K = 2 to 10 and pick the best one.
+</p>
+
+<form class="controls" method="post">
+  <div>
+    <label>K selection method</label>
+    <select name="method">
+      <option value="manual"     {% if selected_method=='manual' %}selected{% endif %}>1. Manual K</option>
+      <option value="elbow"      {% if selected_method=='elbow' %}selected{% endif %}>2. Elbow Method</option>
+      <option value="silhouette" {% if selected_method=='silhouette' %}selected{% endif %}>3. Silhouette Method</option>
+    </select>
+  </div>
+  <div>
+    <label>K (manual only)</label>
+    <input type="number" name="k" min="2" max="15" value="{{ result.k }}">
+  </div>
+  <div>
+    <label>X-axis feature</label>
+    <select name="x_feature">
+      {% for feature in features %}
+      <option value="{{ feature }}" {% if feature==result.x_feature %}selected{% endif %}>{{ feature }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label>Y-axis feature</label>
+    <select name="y_feature">
+      {% for feature in features %}
+      <option value="{{ feature }}" {% if feature==result.y_feature %}selected{% endif %}>{{ feature }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit">Run K-Means</button>
+</form>
+
+<div class="cards">
+  <div class="card"><div class="value">{{ result.k }}</div><div class="label">Clusters (K)</div></div>
+  <div class="card"><div class="value">{{ result.method_name }}</div><div class="label">Selection method</div></div>
+  <div class="card"><div class="value">{{ result.rows }}</div><div class="label">Rows clustered</div></div>
+  <div class="card"><div class="value">{{ result.features_used }}</div><div class="label">Features used</div></div>
+</div>
+
+{% if result.method_plot %}
+<h2>{{ result.method_name }}</h2>
+<div class="plots">
+  <img src="{{ result.method_plot }}" alt="K selection plot">
+  <table>
+    <tr><th>K</th><th>{{ result.score_label }}</th></tr>
+    {% for item in result.score_table %}
+    <tr><td>{{ item.k }}</td><td>{{ item.value }}</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+<h2>Cluster Plot</h2>
+<div class="plots">
+  <img src="{{ result.cluster_plot }}" alt="Cluster scatter plot">
+</div>
+
+<h2>Cluster Summary</h2>
+<table>
+  <tr>
+    <th>Cluster</th><th>Trips</th>
+    <th>Mean {{ result.x_feature }}</th>
+    <th>Mean {{ result.y_feature }}</th>
+  </tr>
+  {% for item in result.cluster_summary %}
+  <tr>
+    <td>{{ item.cluster }}</td>
+    <td>{{ item.count }}</td>
+    <td>{{ item.x_mean }}</td>
+    <td>{{ item.y_mean }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>Cluster Centres (original units)</h2>
+<table>
+  <tr><th>Cluster</th>{% for column in result.centre_columns %}<th>{{ column }}</th>{% endfor %}</tr>
+  {% for row in result.centre_rows %}
+  <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+  {% endfor %}
+</table>
+{% endblock %}

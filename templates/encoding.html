@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Encoding{% endblock %}
+
+{% block content %}
+<h1>Encoding</h1>
+
+<form class="controls" method="post">
+  <div>
+    <label>Encoding method</label>
+    <select name="method">
+      <option value="onehot" {% if method=='onehot' %}selected{% endif %}>One-Hot Encoding</option>
+      <option value="label"  {% if method=='label'  %}selected{% endif %}>Label Encoding</option>
+    </select>
+  </div>
+  <button type="submit">Run Encoding</button>
+</form>
+
+<div class="cards">
+  <div class="card"><div class="value">{{ result.method }}</div><div class="label">Method used</div></div>
+  <div class="card"><div class="value">{{ result.rows }}</div><div class="label">Rows</div></div>
+  <div class="card"><div class="value">{{ result.columns_before }}</div><div class="label">Columns before</div></div>
+  <div class="card"><div class="value">{{ result.columns_after }}</div><div class="label">Columns after</div></div>
+</div>
+
+<p class="note">Encoded file saved to: {{ result.saved_to }}</p>
+
+<h2>Categorical Columns Found</h2>
+<table>
+  <tr><th>Column</th><th>Unique values</th><th>Sample values</th></tr>
+  {% for item in result.category_info %}
+  <tr>
+    <td>{{ item.column }}</td>
+    <td>{{ item.unique_count }}</td>
+    <td>{{ item.sample_values | join(', ') }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>Numerical Columns</h2>
+<p class="note">{{ result.numerical_columns | join(', ') }}</p>
+
+<h2>Encoding Result</h2>
+{% for item in result.mapping_info %}
+<table>
+  <tr><th colspan="2">{{ item.column }}</th></tr>
+  {% for key, value in item.mapping.items() %}
+  <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+  {% endfor %}
+</table>
+{% endfor %}
+
+<h2>Encoded Data Preview</h2>
+<table>
+  <tr>{% for column in result.preview.columns %}<th>{{ column }}</th>{% endfor %}</tr>
+  {% for row in result.preview.rows %}
+  <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+  {% endfor %}
+</table>
+
+{% if result.target_counts %}
+<h2>is_rush_hour Distribution</h2>
+<table>
+  <tr><th>Rush Hour (0=No, 1=Yes)</th><th>Count</th></tr>
+  {% for key, value in result.target_counts.items() %}
+  <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}
