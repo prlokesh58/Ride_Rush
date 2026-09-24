@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ result.model_name }}{% endblock %}
+
+{% block content %}
+<h1>{{ result.model_name }}</h1>
+<p class="note">
+  Target: is_rush_hour &nbsp;|&nbsp; pickup_hour, raw datetimes, high-cardinality
+  Zone columns and Location IDs are removed before training so the model can't cheat
+  or explode into thousands of one-hot columns.
+</p>
+
+<div class="cards">
+  <div class="card"><div class="value">{{ result.accuracy_percent }}%</div><div class="label">Test accuracy</div></div>
+  <div class="card"><div class="value">{{ result.rows }}</div><div class="label">Rows used</div></div>
+  <div class="card"><div class="value">{{ result.train_rows }}</div><div class="label">Training samples</div></div>
+  <div class="card"><div class="value">{{ result.test_rows }}</div><div class="label">Testing samples</div></div>
+</div>
+
+<h2>Model Parameters</h2>
+<table>
+  {% for key, value in result.parameters.items() %}
+  <tr><th>{{ key }}</th><td>{{ value }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>Target Distribution</h2>
+<table>
+  <tr><th>Rush Hour (0=No, 1=Yes)</th><th>Count</th></tr>
+  {% for key, value in result.target_counts.items() %}
+  <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>Features</h2>
+<p class="note"><b>Numerical:</b> {{ result.numerical_features | join(', ') }}</p>
+<p class="note"><b>Categorical:</b> {{ result.categorical_features | join(', ') }}</p>
+
+<h2>Confusion Matrix &amp; Feature Importance</h2>
+<div class="plots">
+  <img src="{{ result.confusion_plot }}" alt="Confusion matrix">
+  <img src="{{ result.importance_plot }}" alt="Feature importance">
+</div>
+
+<h2>Top Features</h2>
+<table>
+  <tr><th>Feature</th><th>Importance</th></tr>
+  {% for item in result.importance_table %}
+  <tr><td>{{ item.feature }}</td><td>{{ item.importance }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>Classification Report</h2>
+<pre>{{ result.report }}</pre>
+
+<h2>Sample Predictions</h2>
+<table>
+  <tr><th>Actual</th><th>Predicted</th></tr>
+  {% for row in result.sample_predictions %}
+  <tr><td>{{ row[0] }}</td><td>{{ row[1] }}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
