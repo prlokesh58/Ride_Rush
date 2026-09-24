@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Linear Regression (Scalar){% endblock %}
+
+{% block content %}
+<h1>Linear Regression &mdash; Scalar</h1>
+<p class="note">
+  Logistic Regression on <b>is_rush_hour</b>, trained three times to compare
+  no scaling, StandardScaler and MinMaxScaler.
+  Features: {{ result.features | join(', ') }}
+</p>
+
+<div class="cards">
+  <div class="card"><div class="value">{{ result.rows }}</div><div class="label">Rows used</div></div>
+  <div class="card"><div class="value">{{ result.train_rows }}</div><div class="label">Training samples</div></div>
+  <div class="card"><div class="value">{{ result.test_rows }}</div><div class="label">Testing samples</div></div>
+  {% if result.auc_score %}
+  <div class="card"><div class="value">{{ result.auc_score }}</div><div class="label">ROC-AUC</div></div>
+  {% endif %}
+</div>
+
+<h2>Scaler Comparison</h2>
+<table>
+  <tr><th>Scaler</th><th>Train Accuracy</th><th>Test Accuracy</th></tr>
+  {% for item in result.results %}
+  <tr>
+    <td>{{ item.name }}</td>
+    <td>{{ item.train_accuracy }}</td>
+    <td>{{ item.test_accuracy }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>Model Coefficients (StandardScaler)</h2>
+<table>
+  <tr><th>Feature</th><th>Coefficient</th></tr>
+  {% for item in result.coefficients %}
+  <tr><td>{{ item.feature }}</td><td>{{ item.coefficient }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>Confusion Matrix &amp; ROC Curve</h2>
+<div class="plots">
+  <img src="{{ result.confusion_plot }}" alt="Confusion matrix">
+  {% if result.roc_plot %}<img src="{{ result.roc_plot }}" alt="ROC curve">{% endif %}
+</div>
+
+<h2>Classification Report</h2>
+<pre>{{ result.report }}</pre>
+{% endblock %}

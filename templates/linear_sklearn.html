@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Linear Regression (Sklearn){% endblock %}
+
+{% block content %}
+<h1>Linear Regression &mdash; Sklearn</h1>
+<p class="note">
+  Predicts <b>fare_amount</b> with sklearn LinearRegression, using trip distance,
+  passenger count, trip duration and whether it was a rush-hour trip.
+</p>
+
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+<div class="cards">
+  <div class="card"><div class="value">{{ result.metrics.r2 }}</div><div class="label">R2 Score</div></div>
+  <div class="card"><div class="value">{{ result.metrics.rmse }}</div><div class="label">RMSE</div></div>
+  <div class="card"><div class="value">{{ result.metrics.mae }}</div><div class="label">MAE</div></div>
+  <div class="card"><div class="value">{{ result.metrics.mse }}</div><div class="label">MSE</div></div>
+</div>
+
+<table>
+  <tr><th>Rows used</th><td>{{ result.rows }}</td></tr>
+  <tr><th>Training samples</th><td>{{ result.train_rows }}</td></tr>
+  <tr><th>Testing samples</th><td>{{ result.test_rows }}</td></tr>
+  <tr><th>Intercept</th><td>{{ result.intercept }}</td></tr>
+</table>
+
+<h2>Coefficients</h2>
+<table>
+  <tr><th>Feature</th><th>Coefficient</th></tr>
+  {% for item in result.coefficients %}
+  <tr><td>{{ item.feature }}</td><td>{{ item.coefficient }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>Predict a Fare Amount</h2>
+<form class="controls" method="post">
+  {% for feature in result.features %}
+  <div>
+    <label>{{ feature }}{% if feature == 'is_rush_hour' %} (0 or 1){% endif %}</label>
+    <input type="number" step="any" name="{{ feature }}" required>
+  </div>
+  {% endfor %}
+  <button type="submit">Predict Fare</button>
+</form>
+
+{% if prediction %}
+<div class="result-box">
+  <b>Predicted Fare Amount: ${{ prediction.predicted_fare }}</b><br>
+  {% for key, value in prediction.inputs.items() %}{{ key }} = {{ value }}&nbsp;&nbsp;{% endfor %}
+</div>
+{% endif %}
+
+<h2>Plots</h2>
+<div class="plots">
+  <img src="{{ result.actual_vs_predicted_plot }}" alt="Actual vs predicted fare">
+  <img src="{{ result.residual_plot }}" alt="Residual histogram">
+</div>
+{% endblock %}
