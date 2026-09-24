@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Preprocessing{% endblock %}
+
+{% block content %}
+<h1>Preprocessing</h1>
+
+<div class="cards">
+  <div class="card"><div class="value">{{ result.rows_before }}</div><div class="label">Rows before</div></div>
+  <div class="card"><div class="value">{{ result.rows_after }}</div><div class="label">Rows after</div></div>
+  <div class="card"><div class="value">{{ result.train_rows }}</div><div class="label">Training samples</div></div>
+  <div class="card"><div class="value">{{ result.test_rows }}</div><div class="label">Testing samples</div></div>
+</div>
+
+<h2>Missing Values Before Preprocessing</h2>
+{% if result.missing_before %}
+<table>
+  <tr><th>Column</th><th>Missing Count</th></tr>
+  {% for col, count in result.missing_before.items() %}
+  <tr><td>{{ col }}</td><td>{{ count }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="note">No missing values found.</p>
+{% endif %}
+
+<h2>Numeric Columns</h2>
+<p class="note">{{ result.numeric_columns | join(', ') }}</p>
+
+<h2>Categorical Columns</h2>
+<p class="note">{{ result.categorical_columns | join(', ') }}</p>
+
+<p class="note">
+  Preprocessed arrays and the fitted preprocessor were saved to the
+  <b>artifacts/</b> folder, ready for Model Training and Prediction.
+  Target: <b>is_rush_hour</b>.
+</p>
+{% endblock %}
